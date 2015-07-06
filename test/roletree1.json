@@ -1,0 +1,33 @@
+{
+  "roles": {
+    "admin": {
+      "roleid": "admin",
+      "rolename": "Administrator",
+      "mems": {
+        "oliver": 1,
+        "wally": 1,
+        "daniel": 1,
+        "millie": 1
+      }
+    },
+    "super": {
+      "roleid": "super",
+      "rolename": "Super-User",
+      "mems": {
+        "god": 1
+      }
+    },
+    "kid": {
+      "roleid": "kid",
+      "rolename": "Kid",
+      "mems": {
+        "marla": 1,
+        "maximillian": 1,
+        "millie": 1
+      }
+    }
+  },
+  "strict": 0,
+  "lastupdate": 0,
+  "autocreate": 0
+}

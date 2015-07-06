@@ -1,0 +1,28 @@
+{
+  "name": "rolepool",
+  "version": "1.0.0",
+  "description": "Manage Application roles in modeled fashion.",
+  "main": "rolepool.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "testX": "node_modules/.bin/mocha",
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ohollmen/rolepool.git"
+  },
+  "keywords": [
+    "roles",
+    "access",
+    "security"
+  ],
+  "devDependencies": {
+    "mocha": "~2.2.5",
+    "eslint": "~0.23.0"
+  },
+  "author": "Olli Hollmen",
+  "license": "MIT"
+}
