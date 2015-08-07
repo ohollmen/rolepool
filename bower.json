@@ -1,0 +1,11 @@
+{
+  "name": "rolepool",
+  "version": "1.0.1",
+  "description": "Manage Application roles in modeled fashion.",
+  "main": "rolepool.js",
+  "authors": [
+    "Olli Hollmen <olli.hollmen@gmail.com>"
+  ],
+  "keywords": ["roles","access","access-control","authorization"],
+  "license": "MIT"
+}
