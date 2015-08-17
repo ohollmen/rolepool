@@ -6,6 +6,7 @@
   "authors": [
     "Olli Hollmen <olli.hollmen@gmail.com>"
   ],
+  "license": "MIT",
   "keywords": ["roles","access","access-control","authorization"],
-  "license": "MIT"
+  "ignore":[".git",".gitignore"]
 }
