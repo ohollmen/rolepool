@@ -182,6 +182,33 @@ Rolepool.prototype.userhasoneofroles = function (memid, roleids, ctx) {
    return null;
 };
 
+/** Convert "raw" JSON data to rolepool objects.
+ * Allow client side to "cast" raw data into a fully usable rolepool object.
+ * Return rolepool object (same as the parameeter passed)
+ */
+Rolepool.fromdata = function (rp, opts) {
+  opts = opts || {};
+  var debug = opts.debug;
+  if (debug) {console.log("ROLEPOOL:" + JSON.stringify(rp, null, 2));}
+  // TODO: 
+  rp.__proto__ = Rolepool.prototype;
+  rp.touserid =   function (userctx) {return userctx.userid;};
+  if (debug) {
+    console.log(rp);
+    console.log(Rolepool);
+  }
+  var ks = Object.keys(rp.roles);
+  // console.log("ROLEPOOL-roles:" + JSON.stringify(ks, null, 2));
+  ks.forEach(function (rlbl) {
+    rp.roles[rlbl].__proto__ = Role.prototype;
+    //console.log(rp.roles[rlbl]);
+  });
+  // Test
+  //console.log("userhasrole is :"+rp.userhasrole);
+  //console.log("hasrole:"+rp.userhasrole($rootScope.currentUser, 'admin')); // {'userid':153}
+  return(rp);
+}
+
 // Possibly have this get complete userctx ?
 // Rolepool.prototype.userctxhasctxrole = function (memid_or_memctx, roleid, ctx) {
 //};
