@@ -107,6 +107,9 @@ Rolepool.prototype.addmem = function (roleid, memid) {
       role = this.addrole(roleid, "Untitled auto-added Role");
    }
    if (!role) { throw "No role by '" + roleid + "'"; }
+   // Add missing check originating from a data bug:
+   // addmem() should be not allowed on dynamic role !!
+   if (role.cb) {throw "addmem(): Role Member population not allowed to a dynamic role";}
    // Allow passing an array of members for convenience
    //if (Array.isArray(memid)) {
    //   memid.forEach(function (mid) {role.addmem(mid);});
@@ -168,13 +171,16 @@ Rolepool.prototype.userhasrole = function (memid, roleid, ctx) {
 };
 /** Test for multiple roles.
  * Even one of the roles listed in roleids will satisfy the role requirement.
+ * Note: If a mix of (static and) dynamic roles is tested, the object context for _all_ the
+ * dynamic roles must be the same. This also implies 
  * @param {string} memid - User/member id
- * @param {array} roleids - One or more Role ID:s passed in array
+ * @param {array} roleids - One or more Role ID:s passed in Array
  * @return The (first) role (name/label) that user was found to have during testing
  */
 Rolepool.prototype.userhasoneofroles = function (memid, roleids, ctx) {
    var i = 0;
    if (!Array.isArray(roleids)) { throw "Roles to be tested not in array"; }
+   // Use for(...) to be able to short-circuit at first match
    for (i = 0; i < roleids.length; i++) {
       var r = roleids[i];
       if (this.userhasrole(memid, r, ctx)) { return r; }
@@ -184,7 +190,7 @@ Rolepool.prototype.userhasoneofroles = function (memid, roleids, ctx) {
 
 /** Convert "raw" JSON data to rolepool objects.
  * Allow client side to "cast" raw data into a fully usable rolepool object.
- * Return rolepool object (same as the parameeter passed)
+ * Return rolepool object (same as the first data parameter passed, but now recognized as Rolepool instance)
  */
 Rolepool.fromdata = function (rp, opts) {
   opts = opts || {};
