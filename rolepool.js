@@ -163,6 +163,7 @@ Rolepool.prototype.userhasrole = function (memid, roleid, ctx) {
    // typeof item === "object" 
    if (memid && typeof memid === "object") { memid = this.touserid(memid); }
    if (!memid) { throw "No memid for checking the static role " + roleid; }
+   if (!role.mems) {console.log("No members for role:" + roleid);return(0);}
    if (role.mems[memid]) { // role.ismem(memid)
       if (this.debug) { console.log("Found '" + memid + "' in role '" + roleid + "'"); }
       return (1);
