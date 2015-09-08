@@ -153,7 +153,7 @@ Rolepool.prototype.userhasrole = function (memid, roleid, ctx) {
    if (role.cb) { // should also be function
      var memctx;
      if (!ctx) { throw "Dynamic role evaluation requested, but no comp. context passed !"; }
-     if (!Object.isObject(memid)) { memctx = role.touserctx(memid); }
+     if (typeof memid !== 'object') { memctx = role.touserctx(memid); }
      else { memctx = memid; } // Looks acceptable as-is
      // TODO: MUST PASS Complete USERCTX
      return role.cb(memctx, ctx);
@@ -216,7 +216,7 @@ Rolepool.fromdata = function (rp, opts) {
   //console.log("userhasrole is :"+rp.userhasrole);
   //console.log("hasrole:"+rp.userhasrole($rootScope.currentUser, 'admin')); // {'userid':153}
   return(rp);
-}
+};
 
 // Possibly have this get complete userctx ?
 // Rolepool.prototype.userctxhasctxrole = function (memid_or_memctx, roleid, ctx) {
