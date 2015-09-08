@@ -205,9 +205,11 @@ Rolepool.fromdata = function (rp, opts) {
     console.log(Rolepool);
   }
   var ks = Object.keys(rp.roles);
-  // console.log("ROLEPOOL-roles:" + JSON.stringify(ks, null, 2));
+  if (debug) {console.log("ROLEPOOL-roles:" + JSON.stringify(ks, null, 2));}
   ks.forEach(function (rlbl) {
-    rp.roles[rlbl].__proto__ = Role.prototype;
+    var r = rp.roles[rlbl];
+    r.__proto__ = Role.prototype;
+    if (r.cbs) {r.cb = eval(r.cbs);} // Dynamic role in JSON context
     //console.log(rp.roles[rlbl]);
   });
   // Test
