@@ -1,6 +1,6 @@
 ////////////// Role ////////////////////////////
-"use strict";
-var console;
+"use strict;";
+// var console; // Do NOT declare JS global objects (seems to have side effect of undefining them and treating them local) !
 // jsdoc -d jsdoc/ --readme README.md --verbose rolepool.js
 
 /* Constructor for role
@@ -115,7 +115,7 @@ Rolepool.prototype.addmem = function (roleid, memid) {
    //   memid.forEach(function (mid) {role.addmem(mid);});
    //   return;
    //}
-   if (role.mems[memid]) { console.log("User '" + memid + "' already has role '" + roleid + "'"); }
+   if (role.mems[memid] && !this.nowarn) { console.log("User '" + memid + "' already has role '" + roleid + "'"); }
    role.addmem(memid);
 };
 
@@ -217,7 +217,11 @@ Rolepool.fromdata = function (rp, opts) {
   //console.log("hasrole:"+rp.userhasrole($rootScope.currentUser, 'admin')); // {'userid':153}
   return(rp);
 };
+/* Reset all static members within rolepool
+*/
+Rolepool.prototype.resetallmem() {
 
+}
 // Possibly have this get complete userctx ?
 // Rolepool.prototype.userctxhasctxrole = function (memid_or_memctx, roleid, ctx) {
 //};
