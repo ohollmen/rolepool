@@ -16,7 +16,7 @@ function Role(roleid, rolename, dyncb) {
   if (dyncb) {
     // Allow string form function to be resolved ?
     // Test that we indeed have function
-    if (!(typeof dyncb === "function")) { throw "Role tester CB is not a function"; }
+    if (typeof dyncb !== "function") { throw "Role tester CB is not a function"; }
     this.cb = dyncb;
   }
   else { this.mems = {}; }
@@ -44,7 +44,8 @@ Role.prototype.ismem = function (userid) {
 };
 ////////////////////////////////////////////////////////
 /** Create a rolepool.
- * Rolepool is a container for roleas and members attached to them.
+ * Rolepool is a container for roles and members attached to them.
+ * This creates an empty stub with no member assignments (for static roles).
  * Dynamic roles evaluate users "contextual" or "dynamic" role.
  * @param {object} opts - Options object with callbacks for converting userid to usercontext and
  * usercontext to userid (Callbacks names "touserctx" and "touserid" respectively)
@@ -88,7 +89,7 @@ Rolepool.prototype.addrole = function (roleid, rolename, rolecb) {
 //   role.mems[memid] = 1;
 //}
 
-/** Add a new member for a role.
+/** Add a new member to a (static) role.
  * If rolepool setting autocreate is set to true, the assignment to a non-existing (basically missing) role
  * is not an error, but the role is created on-the fly by addmem() here.
  * With no autocreate exception is thrown for a missing role.
@@ -191,7 +192,7 @@ Rolepool.prototype.userhasoneofroles = function (memid, roleids, ctx) {
 
 /** Convert "raw" JSON data to rolepool objects.
  * Allow client side to "cast" raw data into a fully usable rolepool object.
- * Return rolepool object (same as the first data parameter passed, but now recognized as Rolepool instance)
+ * @return rolepool object (same as the first data parameter passed, but now recognized as Rolepool instance)
  */
 Rolepool.fromdata = function (rp, opts) {
   opts = opts || {};
@@ -217,11 +218,18 @@ Rolepool.fromdata = function (rp, opts) {
   //console.log("hasrole:"+rp.userhasrole($rootScope.currentUser, 'admin')); // {'userid':153}
   return(rp);
 };
-/* Reset all static members within rolepool
-*/
-Rolepool.prototype.resetallmem() {
-
-}
+/* Reset all static members within rolepool.
+ * Handy to have operation when relaoding all role members (to not have stale / removed members stay in roles).
+ * @return Number of roles that were reset.
+ */
+Rolepool.prototype.resetallmem = function () {
+   var roles = rp.roles;
+   var ks = Object.keys(roles);
+   if (!Array.isArray(ks)) {return 0;} // Implies no members
+   var i = 0;
+   ks.forEach(function (k) { roles[k].mems = {}; i++;}); // Reset each to empty
+   return i;
+};
 // Possibly have this get complete userctx ?
 // Rolepool.prototype.userctxhasctxrole = function (memid_or_memctx, roleid, ctx) {
 //};
