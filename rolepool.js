@@ -223,7 +223,7 @@ Rolepool.fromdata = function (rp, opts) {
  * @return Number of roles that were reset.
  */
 Rolepool.prototype.resetallmem = function () {
-   var roles = rp.roles;
+   var roles = this.roles;
    var ks = Object.keys(roles);
    if (!Array.isArray(ks)) {return 0;} // Implies no members
    var i = 0;
