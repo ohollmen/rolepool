@@ -1,6 +1,6 @@
 {
   "name": "rolepool",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Manage Application roles in modeled fashion.",
   "main": "rolepool.js",
   "directories": {
