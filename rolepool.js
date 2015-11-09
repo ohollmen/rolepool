@@ -149,7 +149,7 @@ Rolepool.prototype.userhasrole = function (memid, roleid, ctx) {
    // Many roles as Array
    if (Array.isArray(roleid)) { return this.userhasoneofroles(memid, roleid, ctx); }
    var role = this.getrole(roleid);
-   if (!role) { return (0); }
+   if (!role) { console.log("No role by " + roleid);return (0); }
    // Dynamic ? Must have callback and context
    if (role.cb) { // should also be function
      var memctx;
