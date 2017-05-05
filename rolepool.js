@@ -171,7 +171,7 @@ Rolepool.prototype.userhasrole = function (memid, roleid, ctx) {
    }
    return (0);
 };
-/** Test for multiple roles.
+/** Test for multiple roles in OR manner (allow any one to match).
  * Even one of the roles listed in roleids will satisfy the role requirement.
  * Note: If a mix of (static and) dynamic roles is tested, the object context for _all_ the
  * dynamic roles must be the same. This also implies 
@@ -188,6 +188,20 @@ Rolepool.prototype.userhasoneofroles = function (memid, roleids, ctx) {
       if (this.userhasrole(memid, r, ctx)) { return r; }
    }
    return null;
+};
+/** Test for multiple roles in AND manner (require all roles to be valid).
+* User has to have all 
+*/
+Rolepool.prototype.userhasallofroles = function (memid, roleids, ctx) {
+   var i = 0;
+   if (!Array.isArray(roleids)) { throw "Roles to be tested not in array"; }
+   // Use for(...) to be able to short-circuit at first non- match
+   for (i = 0; i < roleids.length; i++) {
+      var r = roleids[i];
+      // Any case of does-not-have-role fails AND op
+      if (!this.userhasrole(memid, r, ctx)) { return 0; }
+   }
+   return 1;
 };
 
 /** Convert "raw" JSON data to rolepool objects.
