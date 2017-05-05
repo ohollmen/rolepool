@@ -1,0 +1,14 @@
+{
+  "sub": true,
+  "undef": true,
+  "globals": {
+    "module": true,
+    "console": true,
+    "require": true,
+    "process": true,
+    "_": true,
+    "__dirname": true,
+    "describe": true,
+    "it": true
+  }
+}
