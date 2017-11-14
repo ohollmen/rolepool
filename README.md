@@ -5,24 +5,26 @@
 Many applications depend on some kind of access control facility where
 role of the user needs to be tested to access a piece of application functionality.
 
-Rolepool divides the roles to 2 categories
+Rolepool divides the roles to 2 categories:
 
 - Static roles (context independent roles)
   - These are stored as "memberships" of roles that are effectively grouped list of users
   - Role members are "populated" to roles with (rolepool) api calls.
+  - A practical application would likely store these in JSON files or database
+    and populate the Rolepool object with these role memberships.
 - Dynamic roles (contextual roles)
   - These are dependent on a context (Object) against which a comparision is done
-  - There is no group or list of users associated to these roles
+  - There is no group or list of users associated to these roles (in Rolepool object)
   - Behind the scenes a callback is consulted to see if user has the role or not
 
 
 
 ## Static Roles
 
-Setting up static roles is done with API call
+Setting up static roles is done with API call:
 
     var rp = new rolepool.Rolepool();
-    // Add role
+    // Add role by label 'admin'
     rp.addrole('admin', 'Administrator for App X');
     // Add member to role
     rp.addmem( 'admin',  'jsmith');
@@ -43,7 +45,7 @@ The following would work (if app conventions mandated so):
 
 ## Dynamic Roles
 
-Set up a dymanic role (no members, but MUST have tester callback)
+Set up a dynamic role (no members, but MUST have tester callback)
 
     // Rolepool may contain both static and dynamic roles
     var rp = new rolepool.Rolepool();
@@ -58,6 +60,7 @@ Set up a dymanic role (no members, but MUST have tester callback)
       if (fac.admins.indexOf(user.username) > -1) {return(1);}
       return(0);
     };
+    // Note last parameter
     rp.addrole('adminof', 'Administrator for Facility', is_admin_of_facility);
 
 Testing for dynamic role (vs. static role) using rolepool initialization above:
@@ -95,8 +98,8 @@ with internally setup 2 resolver callbacks:
 These callbacks can be passed in opts Object when constructing Rolepool:
 
     var opts = {
-      touserid:  function (userctx) {return userctx.userid;},
-      touserctx: function (userid) {return globaluserobject;}
+      touserid:  function (userctx) { return userctx.userid; },
+      touserctx: function (userid)  { return globaluserobject; }
     };
     var rp = new Rolepool(opts);
 
