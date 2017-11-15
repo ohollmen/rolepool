@@ -166,7 +166,7 @@ Rolepool.prototype.userhasrole = function (memid, roleid, ctx) {
    }
    return (0);
 };
-/** Test for multiple roles.
+/** Test for (one of) multiple roles.
  * Even one of the roles listed in roleids will satisfy the role requirement.
  * @param {string} memid - User/member id
  * @param {array} roleids - One or more Role ID:s passed in array
