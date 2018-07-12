@@ -247,7 +247,19 @@ Rolepool.prototype.resetallmem = function () {
 // Possibly have this get complete userctx ?
 // Rolepool.prototype.userctxhasctxrole = function (memid_or_memctx, roleid, ctx) {
 //};
-var module;
-if (!module) {module = { exports: null}; }
-module.exports.Role = Role;
-module.exports.Rolepool = Rolepool;
+
+// Universal code exports: covers client side, native nodejs and amd styles.
+
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+  module.exports.Role = Role;
+  module.exports.Rolepool = Rolepool;
+}
+else {
+  if (typeof define === 'function' && define.amd) {
+    define([], function() { return rolepool; });
+  }
+  else {
+    window.Role = Role;
+    window.Rolepool = Rolepool;
+  }
+}
