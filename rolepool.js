@@ -247,7 +247,12 @@ Rolepool.prototype.resetallmem = function () {
 // Possibly have this get complete userctx ?
 // Rolepool.prototype.userctxhasctxrole = function (memid_or_memctx, roleid, ctx) {
 //};
-var module;
-if (!module) {module = { exports: null}; }
-module.exports.Role = Role;
-module.exports.Rolepool = Rolepool;
+//var module;
+// { exports: {} } would be better (and avoid object access via null), but
+// The testing for window is better yet.
+//if (!module) {module = { exports: null}; }
+//module.exports.Role = Role;
+//module.exports.Rolepool = Rolepool;
+var window;
+if ( ! window) { module.exports = {Role: Role, Rolepool: Rolepool}; }
+// ... else leave Role,Rolepool as globals in Browser runtime
