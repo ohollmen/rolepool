@@ -1,6 +1,6 @@
 ////////////// Role ////////////////////////////
-"use strict";
-var console;
+"use strict;";
+// var console; // Do NOT declare JS global objects (seems to have side effect of undefining them and treating them local) !
 // jsdoc -d jsdoc/ --readme README.md --verbose rolepool.js
 
 /* Constructor for role
@@ -16,7 +16,7 @@ function Role(roleid, rolename, dyncb) {
   if (dyncb) {
     // Allow string form function to be resolved ?
     // Test that we indeed have function
-    if (!(typeof dyncb === "function")) { throw "Role tester CB is not a function"; }
+    if (typeof dyncb !== "function") { throw "Role tester CB is not a function"; }
     this.cb = dyncb;
   }
   else { this.mems = {}; }
@@ -44,7 +44,8 @@ Role.prototype.ismem = function (userid) {
 };
 ////////////////////////////////////////////////////////
 /** Create a rolepool.
- * Rolepool is a container for roleas and members attached to them.
+ * Rolepool is a container for roles and members attached to them.
+ * This creates an empty stub with no member assignments (for static roles).
  * Dynamic roles evaluate users "contextual" or "dynamic" role.
  * @param {object} opts - Options object with callbacks for converting userid to usercontext and
  * usercontext to userid (Callbacks names "touserctx" and "touserid" respectively)
@@ -88,7 +89,7 @@ Rolepool.prototype.addrole = function (roleid, rolename, rolecb) {
 //   role.mems[memid] = 1;
 //}
 
-/** Add a new member for a role.
+/** Add a new member to a (static) role.
  * If rolepool setting autocreate is set to true, the assignment to a non-existing (basically missing) role
  * is not an error, but the role is created on-the fly by addmem() here.
  * With no autocreate exception is thrown for a missing role.
@@ -107,12 +108,15 @@ Rolepool.prototype.addmem = function (roleid, memid) {
       role = this.addrole(roleid, "Untitled auto-added Role");
    }
    if (!role) { throw "No role by '" + roleid + "'"; }
+   // Add missing check originating from a data bug:
+   // addmem() should be not allowed on dynamic role !!
+   if (role.cb) {throw "addmem(): Role Member population not allowed to a dynamic role";}
    // Allow passing an array of members for convenience
    //if (Array.isArray(memid)) {
    //   memid.forEach(function (mid) {role.addmem(mid);});
    //   return;
    //}
-   if (role.mems[memid]) { console.log("User '" + memid + "' already has role '" + roleid + "'"); }
+   if (role.mems[memid] && !this.nowarn) { console.log("User '" + memid + "' already has role '" + roleid + "'"); }
    role.addmem(memid);
 };
 
@@ -145,12 +149,12 @@ Rolepool.prototype.userhasrole = function (memid, roleid, ctx) {
    // Many roles as Array
    if (Array.isArray(roleid)) { return this.userhasoneofroles(memid, roleid, ctx); }
    var role = this.getrole(roleid);
-   if (!role) { return (0); }
+   if (!role) { console.log("No role by " + roleid);return (0); }
    // Dynamic ? Must have callback and context
    if (role.cb) { // should also be function
      var memctx;
      if (!ctx) { throw "Dynamic role evaluation requested, but no comp. context passed !"; }
-     if (!Object.isObject(memid)) { memctx = role.touserctx(memid); }
+     if (typeof memid !== 'object') { memctx = role.touserctx(memid); }
      else { memctx = memid; } // Looks acceptable as-is
      // TODO: MUST PASS Complete USERCTX
      return role.cb(memctx, ctx);
@@ -160,32 +164,96 @@ Rolepool.prototype.userhasrole = function (memid, roleid, ctx) {
    // typeof item === "object" 
    if (memid && typeof memid === "object") { memid = this.touserid(memid); }
    if (!memid) { throw "No memid for checking the static role " + roleid; }
+   if (!role.mems) {console.log("No members for role:" + roleid, role);return(0);}
    if (role.mems[memid]) { // role.ismem(memid)
       if (this.debug) { console.log("Found '" + memid + "' in role '" + roleid + "'"); }
       return (1);
    }
    return (0);
 };
-/** Test for (one of) multiple roles.
+
+/** Test for (one of) multiple roles in OR manner (allow any one to match).
  * Even one of the roles listed in roleids will satisfy the role requirement.
+ * Note: If a mix of (static and) dynamic roles is tested, the object context for _all_ the
+ * dynamic roles must be the same. This also implies 
  * @param {string} memid - User/member id
- * @param {array} roleids - One or more Role ID:s passed in array
+ * @param {array} roleids - One or more Role ID:s passed in Array
  * @return The (first) role (name/label) that user was found to have during testing
  */
 Rolepool.prototype.userhasoneofroles = function (memid, roleids, ctx) {
    var i = 0;
    if (!Array.isArray(roleids)) { throw "Roles to be tested not in array"; }
+   // Use for(...) to be able to short-circuit at first match
    for (i = 0; i < roleids.length; i++) {
       var r = roleids[i];
       if (this.userhasrole(memid, r, ctx)) { return r; }
    }
    return null;
 };
+/** Test for multiple roles in AND manner (require all roles to be valid).
+* User has to have all 
+*/
+Rolepool.prototype.userhasallofroles = function (memid, roleids, ctx) {
+   var i = 0;
+   if (!Array.isArray(roleids)) { throw "Roles to be tested not in array"; }
+   // Use for(...) to be able to short-circuit at first non- match
+   for (i = 0; i < roleids.length; i++) {
+      var r = roleids[i];
+      // Any case of does-not-have-role fails AND op
+      if (!this.userhasrole(memid, r, ctx)) { return 0; }
+   }
+   return 1;
+};
 
+/** Convert "raw" JSON data to rolepool objects.
+ * Allow client side to "cast" raw data into a fully usable rolepool object.
+ * @return rolepool object (same as the first data parameter passed, but now recognized as Rolepool instance)
+ */
+Rolepool.fromdata = function (rp, opts) {
+  opts = opts || {};
+  var debug = opts.debug;
+  if (debug) {console.log("ROLEPOOL:" + JSON.stringify(rp, null, 2));}
+  // TODO: 
+  rp.__proto__ = Rolepool.prototype;
+  rp.touserid =   function (userctx) {return userctx.userid;};
+  if (debug) {
+    console.log(rp);
+    console.log(Rolepool);
+  }
+  var ks = Object.keys(rp.roles);
+  if (debug) {console.log("ROLEPOOL-roles:" + JSON.stringify(ks, null, 2));}
+  ks.forEach(function (rlbl) {
+    var r = rp.roles[rlbl];
+    r.__proto__ = Role.prototype;
+    if (r.cbs) {r.cb = eval(r.cbs);} // Dynamic role in JSON context
+    //console.log(rp.roles[rlbl]);
+  });
+  // Test
+  //console.log("userhasrole is :"+rp.userhasrole);
+  //console.log("hasrole:"+rp.userhasrole($rootScope.currentUser, 'admin')); // {'userid':153}
+  return(rp);
+};
+/* Reset all static members within rolepool.
+ * Handy to have operation when relaoding all role members (to not have stale / removed members stay in roles).
+ * @return Number of roles that were reset.
+ */
+Rolepool.prototype.resetallmem = function () {
+   var roles = this.roles;
+   var ks = Object.keys(roles);
+   if (!Array.isArray(ks)) {return 0;} // Implies no members
+   var i = 0;
+   ks.forEach(function (k) { roles[k].mems = {}; i++;}); // Reset each to empty
+   return i;
+};
 // Possibly have this get complete userctx ?
 // Rolepool.prototype.userctxhasctxrole = function (memid_or_memctx, roleid, ctx) {
 //};
-var module;
-if (!module) {module = { exports: null}; }
-module.exports.Role = Role;
-module.exports.Rolepool = Rolepool;
+//var module;
+// { exports: {} } would be better (and avoid object access via null), but
+// The testing for window is better yet.
+//if (!module) {module = { exports: null}; }
+//module.exports.Role = Role;
+//module.exports.Rolepool = Rolepool;
+var window;
+if ( ! window) { module.exports = {Role: Role, Rolepool: Rolepool}; }
+// ... else leave Role,Rolepool as globals in Browser runtime
