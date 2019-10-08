@@ -171,7 +171,8 @@ Rolepool.prototype.userhasrole = function (memid, roleid, ctx) {
    }
    return (0);
 };
-/** Test for multiple roles in OR manner (allow any one to match).
+
+/** Test for (one of) multiple roles in OR manner (allow any one to match).
  * Even one of the roles listed in roleids will satisfy the role requirement.
  * Note: If a mix of (static and) dynamic roles is tested, the object context for _all_ the
  * dynamic roles must be the same. This also implies 
