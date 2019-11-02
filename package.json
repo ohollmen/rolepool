@@ -21,7 +21,7 @@
   ],
   "devDependencies": {
     "mocha": "~2.2.5",
-    "eslint": "~0.23.0"
+    "eslint": "~6.6.0"
   },
   "author": "Olli Hollmen",
   "license": "MIT"
